@@ -3,23 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Proxy</title>
+    <title>CORS Proxy Webpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="text"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #5cb85c;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f7f6;
+            border-radius: 5px;
+            border: 1px solid #d1e9e8;
+        }
+    </style>
 </head>
 <body>
-    <h1>Proxy Service</h1>
-    <form id="proxyForm">
-        <label for="url">Enter URL:</label>
-        <input type="text" id="url" name="url" required>
-        <button type="submit">Go</button>
-    </form>
+    <div class="container">
+        <h1>CORS Proxy Webpage</h1>
+        <label for="urlInput">Enter URL to proxy:</label>
+        <input type="text" id="urlInput" placeholder="e.g. https://example.com/api">
+        <button id="fetchButton">Fetch Data</button>
+
+        <div id="response" class="response" style="display:none;">
+            <h3>Response:</h3>
+            <pre id="responseData"></pre>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('proxyForm').onsubmit = function(event) {
-            event.preventDefault();
-            var url = document.getElementById('url').value;
-            if (url) {
-                window.location.href = 'http://52.39.41.140:3128/' + encodeURIComponent(url);
+        document.getElementById('fetchButton').addEventListener('click', function() {
+            var url = document.getElementById('urlInput').value;
+
+            if (!url) {
+                alert("Please enter a URL.");
+                return;
             }
-        };
+
+            // Show loading message or hide previous response
+            document.getElementById('response').style.display = 'none';
+
+            // Create request to your CORS proxy
+            fetch('https://7sx74uanw8.execute-api.us-west-2.amazonaws.com/cors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: url
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').style.display = 'block';
+                document.getElementById('responseData').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('response').style.display = 'block';
+                document.getElementById('responseData').textContent = 'Error: ' + error.message;
+            });
+        });
     </script>
 </body>
 </html>
